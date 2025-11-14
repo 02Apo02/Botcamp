@@ -2,9 +2,9 @@
 import os
 
 BOT_NAME = os.environ.get("BOT_NAME", "TicaretSECURE")
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")  # zorunlu
+TELEGRAM_TOKEN = os.environ.get("8214173862:AAGvwgiv6LwsfonD1Ed29EPRNxyZcq5AC4A")  # zorunlu
 OWNER_ID = int(os.environ.get("OWNER_ID", "0"))
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", None)
+GEMINI_API_KEY = os.environ.get("AIzaSyDwuipLlDj7fsWgTXOSF1lEE6lXhbotWMc", None)
 
 DATA_FILE = os.environ.get("DATA_FILE", "data.json")
 WARN_LIMIT_MUTE = int(os.environ.get("WARN_LIMIT_MUTE", 3))
