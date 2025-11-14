@@ -15,16 +15,21 @@ import games
 import profile
 import ai_placeholder
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+)
 logger = logging.getLogger(__name__)
 
+# --- Temel komutlar ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"Merhaba! Ben {BOT_NAME}. Yardım için /komut yazın.")
 
 async def komut(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # kısa liste; main'de dynamically added commands expanded
-    await update.message.reply_text("Komut listesi: temel komutlar ve oyunlar, moderation, vip, profile, ai.")
+    await update.message.reply_text(
+        "Komut listesi: temel komutlar ve oyunlar, moderation, vip, profile, ai."
+    )
 
+# --- Mesaj filtreleme / otomatik tepki ---
 async def mesaj(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text:
         return
@@ -42,13 +47,11 @@ async def mesaj(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if kind == 'kufur':
             await update.message.reply_text(f"⚠️ @{uname}, lütfen küfür etme.")
             await moderation.warn_cmd(update, context)
-            save_data(DATA)
-            return
         else:
             await update.message.reply_text(f"🚫 @{uname}, reklam paylaşmak yasak!")
             await moderation.warn_cmd(update, context)
-            save_data(DATA)
-            return
+        save_data(DATA)
+        return
 
     # pos/saha algılama
     pos, saha = myfilters.detect_pos_saha(text)
@@ -72,19 +75,22 @@ async def mesaj(update: Update, context: ContextTypes.DEFAULT_TYPE):
     DATA.setdefault('puanlar', {})[uname] = DATA.setdefault('puanlar', {}).get(uname, 0) + 1
     save_data(DATA)
 
-# register many dummy commands to reach 200+ commands (they are functional and reply)
+# --- Generic command factory ---
 async def generic_cmd_factory(name: str, desc: str):
     async def cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"Komut: /{name} çalıştı — {desc}")
     return cmd
 
+# --- Ana bot başlatma ---
 async def main_async():
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
     # core handlers
     app.add_handler(CommandHandler('start', start))
     app.add_handler(CommandHandler('komut', komut))
-    app.add_handler(CommandHandler('kurallar', lambda u,c: c.application.create_task(u.message.reply_text("Grup Kuralları: Teminat kuralları..."))))
+    app.add_handler(CommandHandler('kurallar', lambda u, c: c.application.create_task(
+        u.message.reply_text("Grup Kuralları: Teminat kuralları...")
+    )))
 
     # module commands
     app.add_handler(CommandHandler('warn', moderation.warn_cmd))
@@ -108,22 +114,20 @@ async def main_async():
 
     app.add_handler(CommandHandler('ai', ai_placeholder.ai_cmd))
 
-    # dynamically create 180 additional simple commands to reach >200
+    # dynamically create 180 additional simple commands
     for i in range(1, 181):
         name = f'extra{i}'
         desc = f'Ekstra komut #{i}'
-        cmd = asyncio.get_event_loop().run_until_complete(generic_cmd_factory(name, desc))
+        cmd = await generic_cmd_factory(name, desc)
         app.add_handler(CommandHandler(name, cmd))
 
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, mesaj))
 
     print('✅ TicaretSECURE çalışıyor...')
-    await app.start()
-    await app.updater.start_polling()
-    await app.updater.idle()
+    await app.run_polling()
 
 if __name__ == '__main__':
     try:
         asyncio.run(main_async())
     except Exception as e:
-        print('Bot hata ile kapandı:', e)
+        logger.exception('Bot hata ile kapandı')
