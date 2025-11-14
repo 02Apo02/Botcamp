@@ -6,7 +6,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, Con
 
 # --- AYARLAR ---
 BOT_NAME = "TicaretSECURE"
-TELEGRAM_TOKEN = "BURAYA_TOKENIN"  # Telegram Bot Token
+TELEGRAM_TOKEN = "8214173862:AAGvwgiv6LwsfonD1Ed29EPRNxyZcq5AC4A"  # Telegram Bot Token
 OWNER_ID = 123456789  # Bot sahibi id
 WARN_LIMIT_MUTE = 3
 WARN_LIMIT_BAN = 5
